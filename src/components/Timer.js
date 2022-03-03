@@ -1,20 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import sound from "../assets/levi_kenyy.mp3";
+
+const audio = new Audio(sound);
+let intervalId;
 
 function Timer(props){
-    const [ sHrs, setHrs ] = useState("00");
-    const [ sMins, setMins ] = useState("00");
-    const [ sSecs, setSecs ] = useState("00");
-    const [ start, setStart ] = useState(false);
-    const [ once, setOnce ] = useState(true);
+    let [ hrs, setHrs ] = useState("00");
+    let [ mins, setMins ] = useState("00");
+    let [ secs, setSecs ] = useState("00");
+    let [ start, setStart ] = useState(false);
 
-    const { tmrHrs, tmrMins, tmrSecs, setTmrHrs, setTmrMins, setTmrSecs } = props;
-    let hrs, mins, secs;
-
-    if(start){
-        [ hrs, mins, secs ] = [ tmrHrs, tmrMins, tmrSecs ];
-    }else{
-        [ hrs, mins, secs ] = [ sHrs, sMins, sSecs ];
-    }
 
     const onHrsChange = (e)=>{
         if(start){
@@ -48,39 +43,60 @@ function Timer(props){
         else return;
     };
 
-    const onStartClick = (e)=>{
-        if(once){
-            setStart(true);
+    const isOnes = (number)=>{
+        return number < 10 ? `0${number}` : number.toString();
+    }
+
+    const updateTime = ()=>{
+        [ hrs, mins, secs ] = [ Number(hrs), Number(mins), Number(secs)];
+        if(secs === 0){
+            if(mins === 0){
+                if(hrs === 0){
+                    audio.play();
+                    start=false;
+                    setStart(false);
+                    clearInterval(intervalId);
+                }else{
+                    console.log("here from hours chang", typeof(hrs));
+                    hrs--;
+                    setHrs(isOnes(hrs));
+                    mins=59;
+                    setMins(59);
+                }
+            }else{
+                console.log("here from mins chang", typeof(mins));
+                mins--;
+                setMins(isOnes(mins));
+                secs=59;
+                setSecs(59);
+            }
+        }else{
+            console.log("here from secs chang", typeof(secs));
+            secs--;
+            setSecs(isOnes(secs));
         }
-
-        console.log("onStart click");
-
-        if(start && once){
-            setTmrHrs(sHrs);
-            setTmrMins(sMins);
-            setTmrSecs(sSecs);
-            setOnce(false);
-            console.log("start and once");
-        }else if(start){
-            setOnce(true);
+    }
+    const onStartClick = (e)=>{
+        if(!start){
+            intervalId = setInterval(updateTime, 1000);
+            console.log("interval id is " + intervalId);
+            start=true;
+            setStart(true);
+        }else{
+            console.log("interval id is " + intervalId);
+            clearInterval(intervalId);
+            start=false;
             setStart(false);
-            console.log("start");
+            console.log("interval id is " + intervalId);
         }
     }
 
     const onResetClick = (e)=>{
+        clearInterval(intervalId);
         setStart(false);
+
     }
 
-    // const runTimer = ()=>{
-    //     let { hrs, mins, secs } = this.state;
-    //     [hrs, mins, secs] = [Number(hrs), Number(mins), Number(secs)]
-    //     const key = setInterval(()=>{
-    //         if(Number(secs != 0)){
-    //             this.setState({secs: secs--})
-    //         }
-    //     }, 1000)
-    // }
 
     return(
         <>
