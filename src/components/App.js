@@ -11,9 +11,7 @@ function App() {
         <div className="left">
           <Clock />
         </div>
-        <div className="right">
-          
-        </div>
+        <Todos />
       </main>
     </div>
   );
